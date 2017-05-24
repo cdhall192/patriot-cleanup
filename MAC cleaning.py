@@ -82,14 +82,6 @@ def compareUsers(compare_list, compare_dict):
             
     return matched_values
 
-#def changeModem(modem_IP):
-
-    #TODO: Using IP from matchedList, go to modem and login
-    #TODO: Check if correct interface has the IP
-    #TODO: Go to network settings and disable unnecessary interfaces
-    #TODO: Logout
-    #TODO: Write errors in log
-
 #Takes csv of Authenticated Users, returns dictionary with MACs as keys and IPs as values
 users_dict = getUsers(auth_users)
 
@@ -106,8 +98,3 @@ for y in range(0, len(matched_list)):
     testwrite.write(matched_list[y] + '\n')
     
 testwrite.close()
-
-#Iterates through list and runs changeModem on each IP
-#for IP in range(0, len(matched_list)):
-#    changeModem(matched_list[IP])
-    

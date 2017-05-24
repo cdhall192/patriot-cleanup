@@ -38,21 +38,17 @@ def DHCPLogs(logs):
     #Regex search for MAC Addresses
     reg_match = MAC_only_regex.findall(logs_content)
 
-    match_list = []
+    match_set = set(reg_match)
 
-    for i in range(0, len(reg_match)):
-        if reg_match[i] not in match_list:
-            match_list.append(reg_match[i])
+    return list(match_set)
 
-    return match_list
-
-#Takes list and dictionary then compares list to dictionary keys,
+#Takes list and dictionary then compares set to dictionary keys,
 #returns list of matched dictionary values (IP Addresses)
-def compareUsers(logs_list, users_dict):
+def compareUsers(logs_set, users_dict):
 
+    matched_values = set()
+    
     #Match MACs from logs_list to MACs from users_dict
-    matched_values = []
-
     for i in range(0, len(logs_list)):
         #Splice last two digits from MAC in order to add and subtract
         #in order to test against Authenticated Users MACs
@@ -60,13 +56,11 @@ def compareUsers(logs_list, users_dict):
         last_pair_plus = hex(int(logs_list[i][-2:], 16) + 1)
         last_pair_minus = hex(int(logs_list[i][-2:], 16) - 1)
         if base_MAC + last_pair_plus[2:] in users_dict.keys():
-            if users_dict[base_MAC + last_pair_plus[2:]] not in matched_values:
-                matched_values.append(users_dict[base_MAC + last_pair_plus[2:]])
-        elif base_MAC + last_pair_minus[2:] in users_dict.keys():
-            if users_dict[base_MAC + last_pair_minus[2:]] not in matched_values:
-                matched_values.append(users_dict[base_MAC + last_pair_minus[2:]])
-
-    return matched_values
+            matched_values.add(users_dict[base_MAC + last_pair_plus[2:]])
+        if base_MAC + last_pair_minus[2:] in users_dict.keys():
+            matched_values.add(users_dict[base_MAC + last_pair_minus[2:]])
+            
+    return list(matched_values)
 
 #Select the files to compare
 root = tk.Tk()

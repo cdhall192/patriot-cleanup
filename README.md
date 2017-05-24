@@ -1,6 +1,8 @@
 # patriot-cleanup
 Reduce DCHP request spam on Patriot servers
 
+
+
 Takes CSV of DHCP logs limited to peers spamming the server, and CSV of authenticated users.
 
 Pulls MAC addresses from DHCP logs.

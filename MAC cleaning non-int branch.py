@@ -68,15 +68,6 @@ def compareUsers(logs_list, users_dict):
 
     return matched_values
 
-#TODO: Write code to automate modem logon and changes
-#def changeModem(modem_IP):
-
-    #TODO: Using IP from matchedList, go to modem and login
-    #TODO: Check if correct interface has the IP
-    #TODO: Go to network settings and disable unnecessary interfaces
-    #TODO: Logout
-    #TODO: Write errors in log
-
 #Select the files to compare
 root = tk.Tk()
 root.withdraw()
@@ -105,7 +96,3 @@ for y in range(0, len(matched_list)):
     testwrite.write(matched_list[y] + '\n')
 
 testwrite.close()
-
-#Iterates through list and runs changeModem on each IP
-#for IP in range(0, len(matched_list)):
-#    changeModem(matched_list[IP])

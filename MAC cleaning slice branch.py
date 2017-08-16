@@ -1,6 +1,14 @@
 import tkinter as tk
 import re, os
+import webbrowser
 from tkinter import filedialog
+from time import sleep
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.common.action_chains import ActionChains
 
 #Takes csv of Authenticated Users, returns dictionary with MACs as keys and IPs as values
 def getUsers(users):
@@ -44,14 +52,24 @@ def DHCPLogs(logs):
 
 #Takes list and dictionary then compares set to dictionary keys,
 #returns list of matched dictionary values (IP Addresses)
-def compareUsers(logs_set, users_dict):
+def compareUsers(logs_list, users_dict):
 
     matched_values = set()
     
-    #Match MACs from logs_list to MACs from users_dict
+    #Match MACs from logs_set to MACs from users_dict
     for i in range(0, len(logs_list)):
         #Splice last two digits from MAC in order to add and subtract
         #in order to test against Authenticated Users MACs
+        if logs_list[i][-2:] == 'ff':
+            overflow = hex(int(logs_list[i][-4:-3], 16) + 1)
+            if (logs_list[i][:-4] + overflow + '00') in users_dict.keys():
+                matched_values.add(users_dict[logs_list[i][:-4] + overflow + '00'])
+                continue
+        if logs_list[i][-2:] == '00':
+            overflow = hex(int(logs_list[i][-4:-3], 16) - 1)
+            if (logs_list[i][:-4] + overflow + 'ff') in users_dict.keys():
+                matched_values.add(users_dict[logs_list[i][:-4] + overflow + 'ff'])
+                continue
         base_MAC = logs_list[i][:-2]
         last_pair_plus = hex(int(logs_list[i][-2:], 16) + 1)
         last_pair_minus = hex(int(logs_list[i][-2:], 16) - 1)
@@ -59,8 +77,26 @@ def compareUsers(logs_set, users_dict):
             matched_values.add(users_dict[base_MAC + last_pair_plus[2:]])
         if base_MAC + last_pair_minus[2:] in users_dict.keys():
             matched_values.add(users_dict[base_MAC + last_pair_minus[2:]])
+        if logs_list[i] in users_dict.keys():
+            matched_values.add(users_dict[logs_list[i]])
             
     return list(matched_values)
+
+def changeModem(modem_IP):
+
+"""    chrome_path = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s"
+    webbrowser.get(chrome_path).open('')
+    counter = 0
+    for IP in modem_IP:
+        webbrowser.open_new_tab(IP)
+        login = driver.find_element_by_name('AuthName')
+        login.send_keys('admin')
+        password = driver.find_element_by_name('Display')
+        password.send_keys('ArViG1432Rg')
+        password.send_keys(Keys.RETURN)
+        counter++
+        if (counter % 10) == 0:
+            os.system("pause")"""
 
 #Select the files to compare
 root = tk.Tk()
@@ -81,6 +117,9 @@ cleaned_logs = DHCPLogs(logs_csv)
 
 #Compares data to find IP Addresses of modems spamming the DHCP server
 matched_list = compareUsers(cleaned_logs, cleaned_users)
+
+#Iterates through list and opens a webpage for each IP
+#changeModem(matched_list)
 
 #Prints IP Addresses to file until modem login automation implemented
 os.chdir(os.path.dirname(auth_users))
